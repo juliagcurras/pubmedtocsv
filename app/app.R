@@ -9,8 +9,11 @@
 source(file = "global.R", encoding = 'UTF-8')
 
 
-# ui <- page_sidebar(
+# UI ####
+
 ui <- bslib::page_fluid(
+  
+  ## General ####
   theme = bslib::bs_theme(bootswatch = "superhero"),
   fillable = TRUE,
   fillable_mobile = TRUE,
@@ -24,54 +27,80 @@ ui <- bslib::page_fluid(
   
   
   layout_sidebar(
+    ## Sidebar ####
     sidebar = sidebar(
       title = "Selection panel", accept = ".txt",
+      width = 350,
       fileInput(inputId = "txtFile",
-                label = "Select the pubmed.txt file from your computer"),
+                label = "Select the pubmed.txt file from your computer: "),
       actionButton(inputId = "goExtraction", label = "Start extraction!"),
       uiOutput(outputId = "uiDownloadButton"),
+      p("Where can I find a file in PubMed format?"),
+      helpText("Go to ", 
+               a("PubMed database", href = "https://pubmed.ncbi.nlm.nih.gov/", 
+                 target="_blank"),
+               ", make a search and download the results in 
+               PubMed.txt format! Then, you can extract all the information using 
+               this app.")
       ),
     
+    ## Box 1 - table ####
     card(    
-      card_header("Table from PubMed"), 
+      card_header(h2("Table from PubMed")), 
       card_body(
         p("Here you can see the final table built using the PubMed format file. 
           The table can be downloaded using the buttons above the table or 
           the 'Download button' in the left side panel."), 
-        p("Important! Only the first 1000 documents are shown in the table. For more
+        p(strong("Important!"), "Only the first 1000 documents are shown in the table. For more
           than 1000 PubMed results, use the \'Download CSV\' button in the left 
-          side panel to get a CSV with all the results."),
+          side panel."),
+        uiOutput("summaryText"),
+        # helpText(textOutput("summaryText")),
         fillable = T, fill = T, 
         shinycustomloader::withLoader(DT::dataTableOutput(outputId = "tabPubMed"), 
                                       type = 'html', loader = 'dnaspin'))
     ),
     
     navset_card_underline(
+      ## Box 2 - Figures ####
       height = '700px',
-      title = "Summary of search results",
+      title = h2("Summary of search results"),
       # height = '1500px',
-      nav_panel("Year of publication", 
+      ### Years ####
+      nav_panel(h4("Year of publication"), 
                 shinycustomloader::withLoader(uiOutput(outputId = "yearsPlot"), 
                                               type = 'html', loader = 'dnaspin'),
                 ),
-      nav_panel("Journal",
+      ### Journal ####
+      nav_panel(h4("Journal"),
+                p("Warning! Only the 15 journals with the highest number of publications 
+                  are depicted in the barplot."),
+                uiOutput("summaryJournal"),
                 shinycustomloader::withLoader(uiOutput(outputId = "JournalPlot"), 
                                               type = 'html', loader = 'dnaspin'),
                 ),
-      nav_panel("Country",
+      ### Country ####
+      nav_panel(h4("Country"),
+                p("Warning! Only the 15 countries with the highest number of publications 
+                  are depicted in the barplot."),
+                uiOutput("summaryCountry"),
                 shinycustomloader::withLoader(uiOutput(outputId = "countryPlot"), 
                                               type = 'html', loader = 'dnaspin'),
                 )
     )
   ),  
   
+  ## Footer ####
   tags$div(class = "footer",
            includeHTML("footer.html"))
 )
 
 
+# SERVER ####
+
 server <- function(input, output) {
-  
+
+  ## PUBMED TO CSV ####
   tabPM <- eventReactive(input$goExtraction, {
     if(is.null(input$txtFile)){
       return(NULL)
@@ -83,6 +112,7 @@ server <- function(input, output) {
     return(df)
   })
   
+  ## Box 1 - Display table ####
   output$tabPubMed <- DT::renderDataTable({
     df <- req(tabPM())
     if(is.null(df)){
@@ -111,7 +141,6 @@ server <- function(input, output) {
              ))
   })
   
-  
   output$uiDownloadButton <- renderUI({
     tabPM <- req(tabPM())
     downloadButton(outputId = "downloadCSV", label = "Download CSV")
@@ -128,13 +157,29 @@ server <- function(input, output) {
     }
   )
   
-
+  output$summaryText <- renderUI({ 
+    df <- req(tabPM())
+    if(is.null(df)){
+      return(NULL)
+    }
+    duplicatedIDs <- ifelse(any(duplicated(df$PMID)), "YES", "NO")
+    HTML(paste0("Summary: <br> <ul><li>Total number of documents: ", nrow(df),
+                "</li><li>Total number of PubMed tags (columns on the table): ", ncol(df),
+                "</li><li>Duplicated documents (PMID): ", duplicatedIDs, 
+                "</li></lu>"))
+  })
+  
+  
+  ## Box 2 - Display figures ####
+  ### Years ####
   output$yearsPlot <- renderUI({
     df <- req(tabPM())
     if(is.character(df)){
       return(NULL)
     }
     df <- as.data.frame(df)
+    df$YEAR <- factor(df$YEAR, 
+                      levels = seq(from = min(df$YEAR), to = max(df$YEAR), by =1))
     dfPlot <- data.frame(Years = names(table(df$YEAR)),
                          Frequency = as.vector(table(df$YEAR)), 
                          Percentage = round(as.vector(prop.table(table(df$YEAR)))*100, 2))
@@ -161,7 +206,7 @@ server <- function(input, output) {
   })
   
   
-  
+  ### Journal ####
   output$JournalPlot <- renderUI({
     df <- req(tabPM())
     if(is.character(df)){
@@ -203,7 +248,26 @@ server <- function(input, output) {
     
   })
   
+  output$summaryJournal <- renderUI({ 
+    df <- req(tabPM())
+    if(is.null(df)){
+      return(NULL)
+    }
+    
+    nOnePub <- unname(table(table(df$JT) > 1)["TRUE"])
+    nOnePub <- ifelse(is.na(nOnePub), 0, nOnePub)
+    totalByJournal <- unname(table(df$JT))
+    
+    HTML(paste0("Summary: <br> <ul><li>Journals: ", length(unique(df$JT)),
+                "</li><li>Journals with more than one publication: ", nOnePub, 
+                " (", round((nOnePub/length(unique(df$JT)))*100, 2), "%)",
+                "</li><li>Average of publications by journal (standard deviation): ", 
+                round(mean(totalByJournal), 2), " (", round(sd(totalByJournal), 2), ")",
+                "</li></lu>"))
+  })
   
+  
+  ### Country ####
   output$countryPlot <- renderUI({
     df <- req(tabPM())
     if(is.character(df)){
@@ -216,6 +280,9 @@ server <- function(input, output) {
     
     dfPlot <- dfCountry %>%
       dplyr::arrange(Frequency) 
+    if (nrow(dfPlot) > 15) {
+      dfPlot <- dfPlot[1:15,]
+    }
     dfPlot$Country <- factor(dfPlot$Country, levels = unique(dfPlot$Country))
     dfPlot$Color <- colorPalette(n = nrow(dfPlot), removeWhite = TRUE)
     
@@ -235,6 +302,24 @@ server <- function(input, output) {
                                                 "select2d", "pan2d"),
                      displaylogo = FALSE)
     
+  })
+  
+  output$summaryCountry <- renderUI({ 
+    df <- req(tabPM())
+    if(is.null(df)){
+      return(NULL)
+    }
+    
+    nOnePub <- unname(table(table(df$PL) > 1)["TRUE"])
+    nOnePub <- ifelse(is.na(nOnePub), 0, nOnePub)
+    totalByCountry <- unname(table(df$PL))
+    
+    HTML(paste0("Summary: <br> <ul><li>Number of countries: ", length(unique(df$PL)),
+                "</li><li>Countries with more than one publication: ", nOnePub, 
+                " (", round((nOnePub/length(unique(df$PL)))*100, 2), "%)",
+                "</li><li>Average of publications by country (standard deviation): ", 
+                round(mean(totalByCountry), 2), " (", round(sd(totalByCountry), 2), ")",
+                "</li></lu>"))
   })
   
 }

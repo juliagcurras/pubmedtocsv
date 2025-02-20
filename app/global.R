@@ -119,12 +119,21 @@ processFile <- function(lineas){
   }
   
   ## 4.2) Data
-  if (any("DEP" %in% colnames(df))){
-    df$DEP <- as.Date(df$DEP, format = "%Y%m%d")
-    Hmisc::label(df$DEP) <- dfLabel[dfLabel$ID == "DEP", "Description"]
+  if (any("DP" %in% colnames(df))){
     # Change colnames for the meaning (or using labels)
-    df$YEAR <- as.numeric(format(df$DEP,"%Y"))
+    df$YEAR <- as.numeric(substr(df$DP, 1, 4))
     Hmisc::label(df$YEAR) <- "Year of publication"
+  } else if (any("CRDT" %in% colnames(df))){
+    # Change colnames for the meaning (or using labels)
+    df$YEAR <- as.numeric(format(strptime(df$CRDT, format = "%Y/%m/%d %H:%M"),"%Y"))
+    Hmisc::label(df$YEAR) <- "Year of publication"
+  } else if (any("EDAT" %in% colnames(df))){
+    # Change colnames for the meaning (or using labels)
+    df$YEAR <- as.numeric(format(strptime(df$EDAT, format = "%Y/%m/%d %H:%M"),"%Y"))
+    Hmisc::label(df$YEAR) <- "Year of publication"
+  } else if (any("CRDT" %in% colnames(df))){
+    df$YEAR <- as.numeric(format(as.Date(df$DEP, format = "%Y/%m/%d"),"%Y"))
+    Hmisc::label(df$YEAR) <- "Year of electronic publication"
   }
   
   # 5) Returning

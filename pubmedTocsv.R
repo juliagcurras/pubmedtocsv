@@ -9,12 +9,72 @@
 # Setup ####
 rm(list=ls())
 graphics.off()
-setwd("G:/Mi unidad/_General/DoctoradoIndustrial2022/Publicaciones/METAANALISIS/R/1_Search/20250214_mainSearch")
+setwd("C:/Users/julia/Documents/GitHub/pubmedtocsv")
 library(dplyr)
 dfLabel <- readRDS(file = "PubMedIDs.rds")
+source(file = "app/global.R")
 
 
-# Load Pubmed file ####
+# Main function from global ####
+## Tranform data ####
+lineas <- readLines("ejemploRNA.txt")
+df <- processFile(lineas)
+
+
+
+## Analysis ####
+Biostatech::plotBarUnivar(df$YEAR)
+dfYears <- data.frame(Years = names(table(df$YEAR)),
+                      Frequency = as.vector(table(df$YEAR)))
+Biostatech::plotScatter(base = dfYears, varX = "Years", varY = "Frequency", 
+                        adjustLine = T, adjustType = "loess")
+
+# Journal (JT)
+unique(df$JT)
+length(table(df$JT))
+table(df$JT>1)
+dfJournal <- data.frame(Years = names(table(df$JT)),
+                        Frequency = as.vector(table(df$JT)))
+nrow(dfJournal) # 283 different journals
+sum(dfJournal$Frequency > 1) # 87 journals with 2 or more documents
+sum(dfJournal$Frequency > 2) # 47 journals with 3 or more documents
+sum(dfJournal$Frequency > 4) # 20 journals with 4 or more documents
+dfPlot <- dfJournal  %>%
+  filter(Frequency > 3) %>%
+  arrange(Frequency) 
+dfPlot$Years <- factor(dfPlot$Years, levels = unique(dfPlot$Years))
+
+Biostatech::plotBarUnivar(var = dfPlot$Years, freqVar = dfPlot$Frequency, 
+                          freqRel = F, verticalBars = F)
+
+
+# PL (country)
+table(df$PL)
+dfCountry <- data.frame(Country = names(table(df$PL)),
+                        Frequency = as.vector(table(df$PL)))
+dfCountry <- dfCountry %>% arrange(Frequency)
+dfCountry$Country <- factor(dfCountry$Country, levels = unique(dfCountry$Country))
+Biostatech::plotBarUnivar(var = dfCountry$Country, freqVar = dfCountry$Frequency, 
+                          freqRel = F, verticalBars = F)
+
+
+# language
+table(df$LA)
+
+
+# Duplicated articles?
+table(table(df$PMID) > 1)
+sum(is.na(df$PMID))
+
+
+
+
+
+
+
+#X------------------------------------------------------------------------- ####
+# Código inicial pre función global ####
+## Load Pubmed file ####
 raizDir <- "G:/Mi unidad/_General/DoctoradoIndustrial2022/Publicaciones/METAANALISIS/"
 search_directory <- "G:/Mi unidad/_General/DoctoradoIndustrial2022/Publicaciones/METAANALISIS/Data/1_Search/20250213_MainSearch/2_PubMed_pubMed.txt"
 lineas <- readLines(search_directory)
@@ -37,7 +97,7 @@ for (i in 1:length(lineas)){
 }
 
 
-# Extract info from each paper ####
+## Extract info from each paper ####
 # Vector con las abreviaturas de las etiquetas en PubMed
 # Vector con abreviaturas posibles de las etiquetas en PubMed
 pubmedTagsAll <- dfLabel$ID
@@ -88,11 +148,11 @@ unique(unlist(allNames))
 
 
 
-# Joint info ####
+## Joint info ####
 df <- bind_rows(allExtracted)
 
 
-# Improve DOI data ####
+## Improve DOI data ####
 lidToDOI <- strsplit(df$LID, split = "[pii]", fixed = T)
 
 df$DOI <- sapply(lidToDOI, function(i){
@@ -127,16 +187,16 @@ View(df[, c("LID", "DOI", "PPI")])
 
 
 
-# Improve Aesthetics ####
+## Improve Aesthetics ####
 
-## Labels ####
+### Labels ####
 dfOriginal <- df
 df <- dfOriginal
 for (i in colnames(df)){
   Hmisc::label(df[,i, drop = TRUE]) <- dfLabel[dfLabel$ID == i, "Description"]
 }
 
-## Data  ####
+### Data  ####
 df$DEP <- as.Date(df$DEP, format = "%Y%m%d")
 # Change colnames for the meaning (or using labels)
 df$YEAR <- as.numeric(format(df$DEP,"%Y"))
@@ -146,9 +206,10 @@ Hmisc::label(df$YEAR) <- "Year of publication"
 
 
 
-# Analysis ####
-summary(df$Year)
-Biostatech::plotBarUnivar(df$YEAR)
+## Analysis ####
+
+summary(df$CRDT)
+Biostatech::plotBarUnivar(df$CRDT)
 dfYears <- data.frame(Years = names(table(df$YEAR)),
                       Frequency = as.vector(table(df$YEAR)))
 Biostatech::plotScatter(base = dfYears, varX = "Years", varY = "Frequency", 

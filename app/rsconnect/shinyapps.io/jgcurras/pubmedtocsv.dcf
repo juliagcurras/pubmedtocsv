@@ -1,0 +1,12 @@
+name: pubmedtocsv
+title: pubmedtocsv
+username: jgcurras
+account: jgcurras
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 14044317
+bundleId: 9825987
+url: https://jgcurras.shinyapps.io/pubmedtocsv/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
