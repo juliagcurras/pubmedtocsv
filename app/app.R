@@ -19,7 +19,11 @@ ui <- bslib::page_fluid(
   fillable_mobile = TRUE,
   
   # Title
-  shiny::titlePanel(windowTitle = "PubmedToCSV", title = h1("PubMed to CSV")),
+  shiny::titlePanel(windowTitle = "PubmedToCSV", 
+                    # title = h1("PubMed to CSV")
+                    title = tags$h1("PubMed to CSV", 
+                                    style = "font-size: 80px;")
+                    ),
   # Favicon
   tags$head(tags$link(rel="shortcut icon",
                       href="logo_biostatech.png")
@@ -63,7 +67,7 @@ ui <- bslib::page_fluid(
     
     navset_card_underline(
       ## Box 2 - Figures ####
-      height = '700px',
+      height = '1000px',
       title = h2("Summary of search results"),
       # height = '1500px',
       ### Years ####
@@ -106,6 +110,7 @@ server <- function(input, output) {
       return(NULL)
     }
     search_directory <- input$txtFile$datapath
+    # search_directory <- "../data/pubmed-HPLCandwes-set.txt"
     lineas <- readLines(search_directory)
     df <- processFile(lineas = lineas)
     
@@ -163,7 +168,7 @@ server <- function(input, output) {
       return(NULL)
     }
     duplicatedIDs <- ifelse(any(duplicated(df$PMID)), "YES", "NO")
-    HTML(paste0("Summary: <br> <ul><li>Total number of documents: ", nrow(df),
+    HTML(paste0("Summary: <br> <ul><li>Total number of publications: ", nrow(df),
                 "</li><li>Total number of PubMed tags (columns on the table): ", ncol(df),
                 "</li><li>Duplicated documents (PMID): ", duplicatedIDs, 
                 "</li></lu>"))
@@ -197,7 +202,7 @@ server <- function(input, output) {
                                 axis.text.x = ggplot2::element_text(angle = 75), 
                                 axis.text = ggplot2::element_text(size = 12), 
                                 axis.title = ggplot2::element_text(size = 15)) +
-                 ylab("No of publications") + xlab("")) %>%
+                 ylab("Number of publications") + xlab("")) %>%
       plotly::ggplotly(., tooltip = "text", height = 600) %>% 
       plotly::config(modeBarButtonsToRemove = c("autoScale2d", "lasso2d",
                                                 "select2d", "pan2d"),
@@ -240,7 +245,7 @@ server <- function(input, output) {
                        
                        ) + 
         ggplot2::coord_flip() +
-        ylab("No of publications") + ggplot2::ggtitle("Journal") + xlab("")) %>%
+        ylab("Number of publications") + ggplot2::ggtitle("Journal") + xlab("")) %>%
       plotly::ggplotly(., tooltip = "text", height = 600) %>% 
       plotly::config(modeBarButtonsToRemove = c("autoScale2d", "lasso2d",
                                                 "select2d", "pan2d"),
@@ -267,7 +272,7 @@ server <- function(input, output) {
   })
   
   
-  ### Country ####
+  ### Country - place of publication####
   output$countryPlot <- renderUI({
     df <- req(tabPM())
     if(is.character(df)){
@@ -279,16 +284,16 @@ server <- function(input, output) {
                           Percentage = round(as.vector(prop.table(table(df$PL)))*100, 2))
     
     dfPlot <- dfCountry %>%
-      dplyr::arrange(Frequency) 
+      dplyr::arrange(Frequency)
     if (nrow(dfPlot) > 15) {
-      dfPlot <- dfPlot[1:15,]
+      dfPlot <- dfPlot[(nrow(dfPlot) - 14):nrow(dfPlot),]
     }
     dfPlot$Country <- factor(dfPlot$Country, levels = unique(dfPlot$Country))
     dfPlot$Color <- colorPalette(n = nrow(dfPlot), removeWhite = TRUE)
     
     (ggplot2::ggplot(dfPlot, ggplot2::aes(x = Country, y = Frequency,
                                           text = paste0("Year of publication: ", Country, "\n",
-                                                        "No of publications: ", Frequency, "\n", 
+                                                        "Number of publications: ", Frequency, "\n", 
                                                         "Percentage: ", Percentage, "%"))) +
         ggplot2::geom_bar(stat = "identity", fill = dfPlot$Color) +
         ggplot2::theme_minimal() +

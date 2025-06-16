@@ -13,6 +13,8 @@ library(ggplot2)
 # Functions 
 dfLabel <- readRDS("PubMedIDs.rds")
 pubmedTagsAll <- dfLabel$ID
+dfLabel[which(dfLabel$ID == "DOI"), 2] <- "DOI"
+dfLabel[which(dfLabel$PS == "PL"), 2] <- "Country of publication"
 
 extractInfo <- function(elemento){
   # split pubmed tag from content
@@ -48,7 +50,6 @@ extractInfo <- function(elemento){
   
   return(contido)
 }
-
 
 
 
@@ -146,20 +147,30 @@ processFile <- function(lineas){
 colorPalette <- function(gradiente = FALSE, show = FALSE, 
                          n = NULL, removeWhite = TRUE) {
   # colores
+  # paletaDisc <- c(
+  #   "#003C72", "#005B9A", "#1786A3", "#2FB2AD", "#C3E5BC", "#BCD8E5",
+  #   "#9389C7", "#D1BCE5", "#C67DD8", "#CBCBCB"
+  # )
   paletaDisc <- c(
-    "#003C72", "#005B9A", "#1786A3", "#2FB2AD", "#C3E5BC", "#BCD8E5",
-    "#9389C7", "#D1BCE5", "#C67DD8", "#CBCBCB"
+    "#0F2537", "#3B4D5B", "#4A5A67", "#8699A8", "#B8C3CC", #"#BCD8E5", #"#2CB8B1", "#89E3DF",
+    "#F4B494" ,"#F2A57E", "#EE8A58", "#E96824", "#81340D"
   )
   gradientePal0 <- grDevices::colorRampPalette(colors = c(
-    "#003C72", "#005B9A", "#1786A3",
-    "#2FB2AD", "#BCD8E5", "white",
-    "white", "#D1BCE5", "#C67DD8",
-    "#9389C7", "#544797", "#2E2753"
+    "#0F2537", "#3B4D5B", "#4A5A67", "#8699A8", "#B8C3CC", #"#BCD8E5", #"#2CB8B1", "#89E3DF",
+    "white",
+    "#F4B494" ,"#F2A57E","#EE8A58", "#E96824", "#81340D"
   ))
+  # gradientePal0 <- grDevices::colorRampPalette(colors = c(
+  #   "#003C72", "#005B9A", "#1786A3",
+  #   "#2FB2AD", "#BCD8E5", "white",
+  #   "white", "#D1BCE5", "#C67DD8",
+  #   "#9389C7", "#544797", "#2E2753"
+  # ))
   if (removeWhite){
-    gradientePal0 <- grDevices::colorRampPalette(colors = c(
-      "#003C72", "#005B9A", "#1786A3", "#2FB2AD", "#BCD8E5", 
-      "#D1BCE5", "#C67DD8", "#9389C7", "#544797", "#2E2753"))
+    gradientePal0 <-  grDevices::colorRampPalette(colors = c(
+      "#0F2537", "#3B4D5B", "#4A5A67", "#8699A8", "#B8C3CC", #"#BCD8E5", # "#2CB8B1", "#89E3DF",
+      "#F4B494" ,"#F2A57E","#EE8A58", "#E96824", "#81340D"
+    ))
   }
   gradientePal <- gradientePal0(200)
   
@@ -188,7 +199,7 @@ colorPalette <- function(gradiente = FALSE, show = FALSE,
     } else if (!is.null(n) & is.numeric(n)) {
       ##### si hay n, se devuelven tantos colores como n indicado
       if (n == 1) {
-        cores <- "#005B9A"
+        cores <- "#E96824"
       } else if (n == 2) {
         cores <- paletaDisc[c(1, 4)]
       } else if (n == 3) {
