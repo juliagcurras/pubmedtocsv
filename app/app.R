@@ -7,7 +7,7 @@
 # 02/2025
 
 source(file = "global.R", encoding = 'UTF-8')
-
+options(shiny.maxRequestSize = 50 * 1024^2) 
 
 # UI ####
 
