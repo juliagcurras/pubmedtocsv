@@ -7,7 +7,7 @@
 # 02/2025
 
 source(file = "global.R", encoding = 'UTF-8')
-options(shiny.maxRequestSize = 50 * 1024^2) 
+options(shiny.maxRequestSize = 500 * 1024^2) 
 
 # UI ####
 
@@ -55,8 +55,8 @@ ui <- bslib::page_fluid(
         p("Here you can see the final table built using the PubMed format file. 
           The table can be downloaded using the buttons above the table or 
           the 'Download button' in the left side panel."), 
-        p(strong("Important!"), "Only the first 1000 documents are shown in the table. For more
-          than 1000 PubMed results, use the \'Download CSV\' button in the left 
+        p(strong("Important!"), "Only the first 500 documents are shown in the table. For more
+          than 500 PubMed results, use the \'Download CSV\' button in the left 
           side panel."),
         uiOutput("summaryText"),
         # helpText(textOutput("summaryText")),
@@ -124,9 +124,9 @@ server <- function(input, output) {
       return(NULL)
     }
     df <- as.data.frame(df)
-    colnames(df) <- Hmisc::label(df)
-    if (nrow(df) > 1000){
-      df <- df[1:1000,]
+    colnames(df) <- paste0(colnames(df), " - ", Hmisc::label(df))
+    if (nrow(df) > 500){
+      df <- df[1:500,]
     }
     
     return(DT::datatable(df, rownames = F, extensions = 'Buttons', 
