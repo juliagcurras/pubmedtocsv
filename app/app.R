@@ -124,14 +124,17 @@ server <- function(input, output) {
       return(NULL)
     }
     df <- as.data.frame(df)
-    colnames(df) <- paste0(colnames(df), " - ", Hmisc::label(df))
+    # colnames(df) <- paste0(colnames(df), " - ", Hmisc::label(df))
+    colnames(df) <- ifelse(Hmisc::label(df) == "", 
+                           colnames(df), 
+                           paste0(colnames(df), " - ", Hmisc::label(df)))
     if (nrow(df) > 500){
       df <- df[1:500,]
     }
     
-    return(DT::datatable(df, rownames = F, extensions = 'Buttons', 
+    return(DT::datatable(df, rownames = F, extensions = 'Buttons',
                          options = list(
-                           ordering = F, dom = "Bfrt", scrollY = '500px',
+                           ordering = T, dom = "Bfrt", scrollY = '500px',
                            scrollX = TRUE, pageLength = nrow(df),
                            full_width = TRUE, 
                            buttons = list(list(extend = "copy"),

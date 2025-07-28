@@ -9,12 +9,32 @@ library(DT)
 library(plotly)
 library(Hmisc)
 library(ggplot2)
+library(stringr)
 
 # Functions 
 dfLabel <- readRDS("PubMedIDs.rds")
 pubmedTagsAll <- dfLabel$ID
-dfLabel[which(dfLabel$ID == "DOI"), 2] <- "DOI"
-dfLabel[which(dfLabel$PS == "PL"), 2] <- "Country of publication"
+
+
+extract_id <- function(x, type) {
+  pattern <- paste0("([^;\\[]+) \\[", type, "\\]")
+  res <- str_match(x, pattern)[,2]
+  if (!is.null(res)) res <- str_squish(res)
+  res
+}
+
+# Función para combinar dos columnas con limpieza previa
+combine_ids <- function(primary, secondary) {
+  p <- str_squish(primary)
+  s <- str_squish(secondary)
+  ifelse(
+    is.na(p) & !is.na(s), s,
+    ifelse(!is.na(p) & is.na(s), p,
+           ifelse(!is.na(p) & !is.na(s) & p != s,
+                  paste(p, s, sep = "; "),
+                  p))
+  )
+}
 
 
 processFile <- function(lineas){
@@ -34,40 +54,26 @@ processFile <- function(lineas){
   # 2) Final structure
   df <- dfTab %>%
     group_by(ID, field) %>%
-    summarise(value = paste(value, collapse = "; "), .groups = "drop") %>%
+    summarise(
+      value = ifelse(
+        field[1] %in% c("AU", "AUID", "LID", "AID", "OT", "RN", "PHST", "FAU", "IS"),
+        stringr::str_squish((paste(value, collapse = "; "))),
+        stringr::str_squish((paste(value, collapse = " ")))
+      ),
+      .groups = "drop"
+    ) %>%
+    # summarise(value = stringr::str_squish(paste(value, collapse = " ")), .groups = "drop") %>%
     tidyr::pivot_wider(names_from = field, values_from = value)
   
-  # 3) Joint info
-  if (any("LID" %in% colnames(df))){
-    # Improve DOI data ####
-    lidToDOI <- strsplit(df$LID, split = "[pii]", fixed = T)
-    
-    df$DOI <- sapply(lidToDOI, function(i){
-      if (all(is.na(i))){
-        return(NA)
-      } 
-      result <- grepl(pattern = "[doi]", i, fixed = T)
-      if (!any(result)){
-        return(NA)
-      }
-      doiInfo <- i[result]
-      return(strsplit(x = doiInfo, split = " [doi]", fixed = T)[[1]][1])
-    }, simplify = T)
-    
-    lidtoPPI <- strsplit(df$LID, split = "[doi]", fixed = T)
-    
-    df$PPI <- sapply(lidtoPPI, function(i){
-      if (all(is.na(i))){
-        return(NA)
-      } 
-      result <- grepl(pattern = "[pii]", i, fixed = T)
-      if (!any(result)){
-        return(NA)
-      }
-      doiInfo <- i[result]
-      return(strsplit(x = doiInfo, split = " [pii]", fixed = T)[[1]][1])
-    }, simplify = T)
-  }
+  
+  # 3) Extract DOI and PPI from LID and AID
+  DOI_LID <- extract_id(df$LID, "doi")
+  PII_LID <- extract_id(df$LID, "pii")
+  DOI_AID <- extract_id(df$AID, "doi")
+  PII_AID <- extract_id(df$AID, "pii")
+  # Combine info
+  df$DOI <- combine_ids(DOI_LID, DOI_AID)
+  df$PII <- combine_ids(PII_LID, PII_AID)
   
   
   # 4) Improve Aesthetics
