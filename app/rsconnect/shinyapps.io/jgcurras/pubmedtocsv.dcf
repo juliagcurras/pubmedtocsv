@@ -5,7 +5,7 @@ account: jgcurras
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 14044317
-bundleId: 10686541
+bundleId: 10728913
 url: https://jgcurras.shinyapps.io/pubmedtocsv/
 version: 1
 asMultiple: FALSE
