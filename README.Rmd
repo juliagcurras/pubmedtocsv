@@ -25,7 +25,7 @@ library(dplyr)
 Shiny app to transform a _PubMed_ format _TXT_ file file into a _CSV_ file. 
 
 Clone the repository to run the app locally, or access it directly at the following 
-link:[https://jgcurras.shinyapps.io/pubmedtocsv/]( https://jgcurras.shinyapps.io/pubmedtocsv/). 
+link: [https://jgcurras.shinyapps.io/pubmedtocsv/]( https://jgcurras.shinyapps.io/pubmedtocsv/). 
 
 ## General information
 
@@ -114,7 +114,7 @@ These interactive charts can also be downloaded in _PNG_ format.
 ### Contact information
 
 Contact information is provided at the bottom of the webpage, along with a link 
-to the GitHub repository where issues can be reported.. 
+to the GitHub repository where issues can be reported.
 
 ```{r fig.align='center', out.width='55%'}
 knitr::include_graphics(path = "images/contacInformation.png")
@@ -127,7 +127,7 @@ are explicitly indicated in the column names. However, for some tags, this
 information is missing. 
 
 The following table lists all the considered tags, along with their corresponding 
-meanings.: 
+meanings: 
 
 ```{r}
 df <- readRDS(file = "app/PubMedIDs.rds")
