@@ -10,6 +10,7 @@ library(plotly)
 library(Hmisc)
 library(ggplot2)
 library(stringr)
+library(bslib)
 
 # Functions 
 dfLabel <- readRDS("PubMedIDs.rds")
@@ -191,8 +192,11 @@ colorPalette <- function(gradiente = FALSE, show = FALSE,
 }
 
 
-
-
+# Dependencies 
+# pkgs <- sessionInfo()$otherPkgs
+# dfDependencies <- data.frame(Package = names(pkgs), Version = sapply(pkgs, function(x) x$Version))
+# write.table(dfDependencies, file = "dependencies.txt", append = F, sep = "\t",
+#             row.names = F, quote = F, col.names = T)
 
 
 
