@@ -4,6 +4,9 @@
 Shiny app to transform a *PubMed* format *TXT* file file into a *CSV*
 file.
 
+Clone the repository to run the app locally, or access it directly at
+the following link:<https://jgcurras.shinyapps.io/pubmedtocsv/>.
+
 ## General information
 
 After performing a search in the [PubMed Central (PMC)
@@ -50,8 +53,8 @@ be downloaded using the correspongind button.
 
 In the **top-right panel**, a preview of the output table is displayed,
 showing the first 500 rows. Within this table, users can sort data by
-column, search for specific keywords, and using the panel located in the
-top left region of the table, information can be also copied or
+column and search for specific keywords. Using the panel located in the
+top-left corner of the table, information can be also copied or
 downloaded in *CSV*, *PDF* or *Excel* format.
 
 <img src="images/TopRightPanel.png" width="100%" style="display: block; margin: auto;" />
@@ -60,9 +63,9 @@ downloaded in *CSV*, *PDF* or *Excel* format.
 
 Additionally, three summary graphs are shown in the **bottom-right
 panel**, displaying publication year, journal, and country information
-for the entire set of documents. These graphs can be found in different
-overlapping tabs, and to access each of them just click the
-corresponding name of the tab.
+for the entire set of documents. These graphs are located in separate
+overlapping tabs; to view each one, simply click on the corresponding
+tab name.
 
 #### Year of publication
 
@@ -80,17 +83,19 @@ These interactive charts can also be downloaded in *PNG* format.
 
 ### Contact information
 
-Contac information is provided in the bottom of the web page, with
-access to the GitHub repository where any issue can be reported.
+Contact information is provided at the bottom of the webpage, along with
+a link to the GitHub repository where issues can be reported..
 
 <img src="images/contacInformation.png" width="55%" style="display: block; margin: auto;" />
 
 ## Tags
 
-The most important tags are identified and its meaning is explicitly
-mentioned in the column names, but for some tags this information is
-missing. In the following table you can see all tha tags consired as
-long as their meaning:
+The most important tags in the PubMed format are identified, and their
+meanings are explicitly indicated in the column names. However, for some
+tags, this information is missing.
+
+The following table lists all the considered tags, along with their
+corresponding meanings.:
 
 <div align="center">
 

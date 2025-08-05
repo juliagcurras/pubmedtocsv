@@ -24,6 +24,9 @@ library(dplyr)
 
 Shiny app to transform a _PubMed_ format _TXT_ file file into a _CSV_ file. 
 
+Clone the repository to run the app locally, or access it directly at the following 
+link:[https://jgcurras.shinyapps.io/pubmedtocsv/]( https://jgcurras.shinyapps.io/pubmedtocsv/). 
+
 ## General information
 
 After performing a search in the [PubMed Central (PMC) database](https://pubmed.ncbi.nlm.nih.gov/) 
@@ -73,8 +76,8 @@ knitr::include_graphics(path = "images/SelectionPanel.png")
 ### Output panel (I): table of documents
 
 In the **top-right panel**, a preview of the output table is displayed, showing the 
-first 500 rows. Within this table, users can sort data by column, search for 
-specific keywords, and using the panel located in the top left region of the table, 
+first 500 rows. Within this table, users can sort data by column and search for 
+specific keywords. Using the panel located in the top-left corner of the table, 
 information can be also copied or downloaded in _CSV_, _PDF_ or _Excel_ format.
 
 ```{r fig.align='center'}
@@ -85,8 +88,8 @@ knitr::include_graphics(path = "images/TopRightPanel.png")
 
 Additionally, three summary graphs are shown in the **bottom-right panel**, displaying 
 publication year, journal, and country information for the entire set of documents.
-These graphs can be found in different overlapping tabs, and to access each of them 
-just click the corresponding name of the tab. 
+These graphs are located in separate overlapping tabs; to view each one, simply 
+click on the corresponding tab name. 
 
 #### Year of publication 
 
@@ -110,8 +113,8 @@ These interactive charts can also be downloaded in _PNG_ format.
 
 ### Contact information
 
-Contac information is provided in the bottom of the web page, with access to the 
-GitHub repository where any issue can be reported. 
+Contact information is provided at the bottom of the webpage, along with a link 
+to the GitHub repository where issues can be reported.. 
 
 ```{r fig.align='center', out.width='55%'}
 knitr::include_graphics(path = "images/contacInformation.png")
@@ -119,9 +122,12 @@ knitr::include_graphics(path = "images/contacInformation.png")
 
 ## Tags 
 
-The most important tags are identified and its meaning is explicitly mentioned in the 
-column names, but for some tags this information is missing. In the following table
-you can see all tha tags consired as long as their meaning: 
+The most important tags in the PubMed format are identified, and their meanings 
+are explicitly indicated in the column names. However, for some tags, this 
+information is missing. 
+
+The following table lists all the considered tags, along with their corresponding 
+meanings.: 
 
 ```{r}
 df <- readRDS(file = "app/PubMedIDs.rds")
