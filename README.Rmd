@@ -1,0 +1,183 @@
+---
+output: github_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "100%",
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE
+)
+
+library(knitr)
+library(DT)
+library(dplyr)
+```
+
+# pubmedToCsv
+
+Shiny app to transform a _PubMed_ format _TXT_ file file into a _CSV_ file. 
+
+## General information
+
+After performing a search in the [PubMed Central (PMC) database](https://pubmed.ncbi.nlm.nih.gov/) 
+with a specific set of keywords and optional filters, the results can be downloaded
+in various formats. The most complete format is the _PubMed_ format, provided 
+as a plain text file.
+
+This format consists of a block of lines for each article, where each line begins
+with a tag of two to four letters that identifies the type of information it 
+contains. An example can be seen in the following image:
+
+```{r fig.align='center', fig.height=4, fig.width=4, out.width='65%'}
+knitr::include_graphics(path = "images/PubMedFormatReadme.png", )
+# ![Data/PubMedFormatReadme.png]()
+```
+
+Since the abstract and all relevant metadata are included in this format, it is 
+useful to convert it into a tabular structure to filter and select the most 
+relevant bibliography from the full set of potentially relevant documents. 
+
+This app transforms the _PubMed_ format into a table that can be downloaded in 
+_CSV_ format. If the number of documents is fewer than 500, the table can also be
+downloaded as a _PDF_ or _Excel_ file. Each column corresponds to a specific tag, 
+and each row represents an individual article. 
+
+
+## App usage
+
+### User interface
+
+General overview:
+
+```{r}
+knitr::include_graphics(path = "images/UIStructure.png")
+```
+
+
+### Selection panel
+
+This user-friendly app consists of a left panel where data can be uploaded, transformations
+can be triggered, and the final _CSV_ file can be downloaded using the correspongind button. 
+
+```{r fig.align='center', out.width='45%'}
+knitr::include_graphics(path = "images/SelectionPanel.png")
+```
+
+### Output panel (I): table of documents
+
+In the **top-right panel**, a preview of the output table is displayed, showing the 
+first 500 rows. Within this table, users can sort data by column, search for 
+specific keywords, and using the panel located in the top left region of the table, 
+information can be also copied or downloaded in _CSV_, _PDF_ or _Excel_ format.
+
+```{r fig.align='center'}
+knitr::include_graphics(path = "images/TopRightPanel.png")
+```
+
+### Output panel (II): graphs
+
+Additionally, three summary graphs are shown in the **bottom-right panel**, displaying 
+publication year, journal, and country information for the entire set of documents.
+These graphs can be found in different overlapping tabs, and to access each of them 
+just click the corresponding name of the tab. 
+
+#### Year of publication 
+
+```{r fig.align='center'}
+knitr::include_graphics(path = "images/BottomRightPanel.png")
+```
+
+#### Journal
+
+```{r fig.align='center'}
+knitr::include_graphics(path = "images/BottomRightPanel_Country.png")
+```
+
+#### Country
+
+```{r fig.align='center'}
+knitr::include_graphics(path = "images/BottomRightPanel_C.png")
+```
+
+These interactive charts can also be downloaded in _PNG_ format.
+
+### Contact information
+
+Contac information is provided in the bottom of the web page, with access to the 
+GitHub repository where any issue can be reported. 
+
+```{r fig.align='center', out.width='55%'}
+knitr::include_graphics(path = "images/contacInformation.png")
+```
+
+## Tags 
+
+The most important tags are identified and its meaning is explicitly mentioned in the 
+column names, but for some tags this information is missing. In the following table
+you can see all tha tags consired as long as their meaning: 
+
+```{r}
+df <- readRDS(file = "app/PubMedIDs.rds")
+df <- df[,-3]
+rownames(df) <- 1:nrow(df)
+```
+
+<div align='center'>
+
+```{r}
+knitr::kable(df, align = c("l", "l"), format = "html")
+```
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
